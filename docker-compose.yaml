@@ -2,15 +2,25 @@ services:
   database:
     image: mariadb
     restart: always
+    ports:
+      - 3306:3306
     volumes:
       - ./database:/var/lib/mysql
     env_file:
       - ./environment/development.env
   backend:
-    build: ./backend/Dockerfile
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        - "UID=$UID"
+        - "GID=$GID"
+        - "USER=$USER"
+    depends_on:
+      - database
     ports:
       - 81:80
     volumes:
-      - ./backend:/var/www/html
+      - ./backend/src:/var/www/html
     env_file:
       - ./environment/development.env
